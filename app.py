@@ -1,53 +1,54 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
-
 app = Flask(__name__)
-
-@app.route("/")
+HEADERS = {
+    "User-Agent": "MyMusicApp/1.0 (janetl35@nycstudents.net)"
+}
+@app.route("/", methods=["GET", "POST"])
 def index():
-    # Get the first 150 Pokémon from the API
-    response = requests.get("https://spoonacular.com/food-api")
-    data = response.json()
-    food = data['results']
-    
-    food = []
-    
-    for food in food_list:
-        url = food['url']
-        parts = url.strip("/").split("/")
-        id = parts[-1]  # The last part is the Pokémon's ID
+    if request.method == "POST":
+        search = request.form.get("search")
+        if not search:
+            return render_template("index.html", error="Please enter an artist name.")
         
-        # Create an image URL using the Pokémon's ID
-        image_url = f"https://api.spoonacular.com/recipes/{id}/information.png"
-        
-        food.append({
-            'name': food['name'].capitalize(),
-            'id': id,
-            'image': image_url
-        })
+        url = f"https://musicbrainz.org/ws/2/artist?search={search}&fmt=json"
+        try:
+            response = requests.get(url, headers=HEADERS)
+            response.raise_for_status()
+            data = response.json()
+            artists = data.get("artists", [])
+            return render_template("artists.html", artists=artists, search=search)
+        except Exception as e:
+            return render_template("index.html", error=f"Error finding artists: {e}")
     
-    # Send the Pokémon list to the index.html page
-    return render_template("index.html", food=food)
+    return render_template("index.html")
 
-# New route: When a user clicks a Pokémon card, this page shows more details and a stats chart
-@app.route("/food/<int:id>")
-def food_detail(id):
-    # Get detailed info for the Pokémon using its id
-    response = requests.get(f"https://api.spoonacular.com/recipes/{id}/information")
-    data = response.json()
-    
-    # Extract extra details like types, height, and weight
-    ingredients = data.get('ingredients')
-    recipe = data.get('recipe')
-    name = data.get('name').capitalize()
-    image_url = f"https://api.spoonacular.com/recipes/{id}/information.png"
-    
-    # Send all details to the food.html template
-    return render_template("food.html", food={
-        'name': name,
-        'recipe': recipe,
-        'ingredients': ingredients,
-    })
+@app.route("/artist/<artist_id>")
+def albums(artist_id):
+    url = f"https://musicbrainz.org/ws/2/release?artist={artist_id}&fmt=json&limit=100"
+    try:
+        response = requests.get(url, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
+        releases = data.get("releases", [])
 
-if __name__ == '__main__':
+        seen = set()
+        albums = []
+        for r in releases:
+            key = (r.get("title"), r.get("date"))
+            if key not in seen:
+                seen.add(key)
+                albums.append({
+                    "id": r.get("id"),
+                    "title": r.get("title"),
+                    "date": r.get("date", "Unknown")
+                })
+
+        return render_template("albums.html", albums=albums)
+    except Exception as e:
+        return f"Error finding albums: {e}", 404
+
+if __name__ == "__main__":
     app.run(debug=True)
+
+
