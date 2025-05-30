@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import requests
 app = Flask(__name__)
 HEADERS = {
-    "User-Agent": "MyMusicApp/1.0 (janetl35@nycstudents.net)"
+    "User-Agent": "MyMusicApp/1.0 (taleene@nycstudents.net)"
 }
 @app.route("/", methods=["GET", "POST"])
 def index():
