@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Artists matching "{{ query }}"</title>
+</head>
+<body>
+    <h1>Artists matching "{{ query }}"</h1>
+    <a href="/">Back to Search</a>
+
+    {% if artists %}
+        <ul>
+            {% for artist in artists %}
+                <li>
+                    <a href="/artist/{{ artist.id }}">{{ artist.name }}</a>
+                    {% if artist.disambiguation %}
+                        ({{ artist.disambiguation }})
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No artists found.</p>
+    {% endif %}
+</body>
+</html>

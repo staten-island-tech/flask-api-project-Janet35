@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ album_title }}</title>
+</head>
+<body>
+    <h1>Tracks in "{{ album_title }}"</h1>
+    <a href="/">Back to Search</a>
+
+    {% if tracks %}
+        <ol>
+            {% for track in tracks %}
+                <li>{{ track.title }}</li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p>No tracks found.</p>
+    {% endif %}
+</body>
+</html>
