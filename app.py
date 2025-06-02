@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import requests
 app = Flask(__name__)
 HEADERS = {
-    "User-Agent": "MyMusicApp/1.0 (taleene@nycstudents.net)"
+    "User-Agent": "MyMusicApp/1.0 (janetl35@nycstudents.net)"
 }
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -11,7 +11,7 @@ def index():
         if not search:
             return render_template("index.html", error="Please enter an artist name.")
         
-        url = f"https://musicbrainz.org/ws/2/artist?search={search}&fmt=json"
+        url = f"https://musicbrainz.org/ws/2/artist?query={search}&fmt=json"
         try:
             response = requests.get(url, headers=HEADERS)
             response.raise_for_status()
@@ -50,5 +50,3 @@ def albums(artist_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
