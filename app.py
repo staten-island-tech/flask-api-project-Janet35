@@ -7,7 +7,10 @@ HEADERS = {
 }
 @app.route("/", methods=["GET", "POST"])
 def index():
-    if request.method == "POST":
+    if request.method == "GET":
+        return render_template("index.html")
+    
+    elif request.method == "POST":
         search = request.form.get("search")
         url = f"https://musicbrainz.org/ws/2/artist?query={search}&fmt=json"
         response =requests.get(url, headers=HEADERS)
@@ -15,11 +18,12 @@ def index():
         data = response.json()
         artists = data.get("artists", [])
 
-        if not search:
-            return render_template("index.html", error="Please enter an artist name.")
-        try:
+    else: 
+        not search
+        return render_template("index.html", error="Please enter an artist name.")
+    try:
             return render_template("artists.html", artists=artists, search=search)
-        except Exception as e:
+    except Exception as e:
             return render_template("index.html", error=f"Error finding artists: {e}")
 
 @app.route("/artist/<artist_id>")
