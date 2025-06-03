@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import requests
 app = Flask(__name__)
-
 HEADERS = {
     "User-Agent": "MyMusicApp/1.0 (janetl35@nycstudents.net)"
 }
@@ -13,30 +12,14 @@ def index():
             return render_template("index.html", error="Please enter an artist name.")
         
         url = f"https://musicbrainz.org/ws/2/artist?query={search}&fmt=json"
-
-HEADERS = {
-    "User-Agent": "MyMusicApp/1.0 (janetl35@nycstudents.net)"
-}
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        query = request.form.get("query")
-        if not query:
-            return render_template("index.html", error="Please enter an artist name.")
-        
-        url = f"https://musicbrainz.org/ws/2/artist?query={query}&fmt=json"
-
         try:
             response = requests.get(url, headers=HEADERS)
             response.raise_for_status()
             data = response.json()
             artists = data.get("artists", [])
-
             return render_template("artists.html", artists=artists, search=search)
         except Exception as e:
             return render_template("index.html", error=f"Error finding artists: {e}")
-    
     return render_template("index.html")
 
 @app.route("/artist/<artist_id>")
